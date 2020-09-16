@@ -61,6 +61,12 @@ class InstagramBot:
 
             if os.path.isfile('done/' + url_link + '.csv'):
                 continue
+
+            done = set()
+            if os.path.isfile('doing/' + url_link + '.csv'):
+                done = csv.open_csv('doing/' + url_link + '.csv')
+
+
             driver.get(url)
 
             users_by_post = []
@@ -94,15 +100,30 @@ class InstagramBot:
                     users.add(user)
 
             for comment in users_by_post:
+
+                flag = False
+                text = ''
+                for person in comment:
+                    if person in done:
+                        flag = True
+                    text = text + person + ' '
+
+                if flag:
+                    continue
+
                 try:
                     driver.find_element_by_class_name('Ypffh').click()
                     comment_field = driver.find_element_by_class_name('Ypffh')
                     time.sleep(random.randint(5, 10))
-                    self.type_like_human(comment, comment_field)
+                    self.type_like_human(text, comment_field)
                     time.sleep(random.randint(10, 20))
                     driver.find_element_by_xpath(
                         "//button[contains(text(), 'Publicar')]").click()
-                    time.sleep(600)
+                    done.add(comment)
+                    if not repeat:
+                        csv.write_csv('doing/', url_link + '.csv', done)
+                    time.sleep(60)
+
                 except Exception as e:
                     print(e)
                     time.sleep(5)
