@@ -244,3 +244,8 @@ console.error: SearchCache: "_readCacheFile: Error reading cache file:" (new Err
 
 ###!!! [Child][MessageChannel::SendAndWait] Error: Channel error: cannot send/recv
 
+1700179298995	geckodriver	INFO	Listening on 127.0.0.1:60493
+1700179299011	mozrunner::runner	INFO	Running command: MOZ_CRASHREPORTER="1" MOZ_CRASHREPORTER_NO_REPORT="1" MOZ_CRASHREPORTER_SHUTDOWN="1" MOZ_NO_REMOTE="1" "/App ... s" "localhost" "-foreground" "-no-remote" "-profile" "/var/folders/rm/4s6qqxnx2qg146xllwwytvk80000gn/T/rust_mozprofileRQ7AfM"
+WebDriver BiDi listening on ws://127.0.0.1:60494
+UNSUPPORTED (log once): POSSIBLE ISSUE: unit 1 GLD_TEXTURE_INDEX_2D is unloadable and bound to sampler type (Float) - using zero texture because texture unloadable
+DevTools listening on ws://127.0.0.1:60494/devtools/browser/14ded377-c641-4244-94af-4682a207d87f

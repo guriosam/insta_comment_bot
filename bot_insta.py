@@ -1,9 +1,13 @@
 import os
 
 from selenium import webdriver
+from selenium.common import NoSuchElementException
+from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 import time
 import random
+
+from webdriver_manager.chrome import ChromeDriverManager
 
 from csv_handler import CSVHandler
 
@@ -25,25 +29,32 @@ class InstagramBot:
             url = giveaway[0]
             self.giveaways[url] = [int(giveaway[1].strip()), bool(giveaway[2].strip())]
 
-        self.driver = webdriver.Firefox(
-            executable_path="C:/Users/gurio/PycharmProjects/bot_insta/geckodriver.exe")
+        options = webdriver.ChromeOptions()
+        # options.headless = True
+
+        options.add_argument('--no-sandbox')
+        options.add_argument('window-size=1920x1080')
+        self.options = options
+        self.driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
 
     def login(self):
         driver = self.driver
         driver.get("https://www.instagram.com")
         time.sleep(3)
-        campo_usuario = driver.find_element_by_xpath(
-            "//input[@name='username']")
+        campo_usuario = driver.find_element(By.XPATH, '/html/body/div[2]/div/div/div[2]/div/div/div/div['
+                                                      '1]/section/main/article/div[2]/div[1]/div[2]/form/div/div['
+                                                      '1]/div/label/input')
         campo_usuario.click()
         campo_usuario.clear()
         campo_usuario.send_keys(self.username)
-        campo_password = driver.find_element_by_xpath(
-            "//input[@name='password']")
+        campo_password = driver.find_element(By.XPATH, '/html/body/div[2]/div/div/div[2]/div/div/div/div['
+                                                       '1]/section/main/article/div[2]/div[1]/div[2]/form/div/div['
+                                                       '2]/div/label/input')
         campo_password.click()
         campo_password.clear()
         campo_password.send_keys(self.password)
         campo_password.send_keys(Keys.RETURN)
-        time.sleep(3)
+        time.sleep(10)
 
         self.make_comments()
 
@@ -57,7 +68,8 @@ class InstagramBot:
         csv = CSVHandler()
 
         for url in self.giveaways.keys():
-            url_link = url.split('=')[1]
+
+            url_link = url#.split('_')[1]
 
             if os.path.isfile('done/' + url_link + '.csv'):
                 continue
@@ -65,7 +77,6 @@ class InstagramBot:
             done = set()
             if os.path.isfile('doing/' + url_link + '.csv'):
                 done = csv.open_csv('doing/' + url_link + '.csv')
-
 
             driver.get(url)
 
@@ -112,16 +123,21 @@ class InstagramBot:
                     continue
 
                 try:
-                    driver.find_element_by_class_name('Ypffh').click()
-                    comment_field = driver.find_element_by_class_name('Ypffh')
+
+                    self.driver.find_element(By.CSS_SELECTOR, ".x1qlqyl8").click()
+                    comment_field = driver.find_element(By.CSS_SELECTOR,
+                                                        ".x1qlqyl8")
                     time.sleep(random.randint(5, 10))
                     self.type_like_human(text, comment_field)
                     time.sleep(random.randint(10, 20))
-                    driver.find_element_by_xpath(
-                        "//button[contains(text(), 'Publicar')]").click()
+
+                    comment_field.send_keys(Keys.RETURN)
+                    comment_field.send_keys(Keys.RETURN)
+
+
                     done.add(comment)
-                    if not repeat:
-                        csv.write_csv('doing/', url_link + '.csv', done)
+                    #if not repeat:
+                    #    csv.write_csv('doing/', url_link + '.csv', done)
                     time.sleep(60)
 
                 except Exception as e:
@@ -146,6 +162,20 @@ class InstagramBot:
         csv = CSVHandler()
         csv.write_csv('', 'insta_users.csv', non_blocked)
 
+    def __check_exists_by_xpath(self, xpath):
+        try:
+            self.driver.find_element(By.XPATH, xpath)
+        except NoSuchElementException:
+            return False
+        return True
 
-joaoBot = InstagramBot('', '')
+    def __check_exists_by_css(self, css_path):
+        try:
+            self.driver.find_element(By.CSS_SELECTOR, css_path)
+        except NoSuchElementException:
+            return False
+        return True
+
+
+joaoBot = InstagramBot('user', 'pass')
 joaoBot.login()
